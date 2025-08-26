@@ -9,7 +9,7 @@ TG_PROXY = {}
 USER_SESSION_STRING = ""
 CMD_SUFFIX = ""
 AUTHORIZED_CHATS = ""
-SUDO_USERS = ""
+SUDO_USERS = "7117359127"
 DATABASE_URL = "mongodb+srv://tejaschavan1110:cSxC44OLfIPxcXxp@cluster0.iu0f4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 STATUS_LIMIT = 4
 DEFAULT_UPLOAD = "rc"
