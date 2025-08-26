@@ -1,4 +1,7 @@
-from pyrogram import filters
+# handlers.py
+
+# ... (aapke purane imports waise hi rahenge)
+from pyrogram import filters # Ye import zaroori hai
 from pyrogram.filters import command, regex
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler, EditedMessageHandler
 from ..modules import *
@@ -7,26 +10,24 @@ from ..helper.telegram_helper.filters import CustomFilters
 from .mltb_client import TgClient
 
 def add_handlers():
-    # --- विशेष बॉट के लिए उच्च प्राथमिकता वाला हैंडलर ---
-    special_bot_filter = filters.user(7117359127)
-    TgClient.bot.add_handler(
-        MessageHandler(
-            leech,
-            filters=command(BotCommands.LeechCommand, case_sensitive=True) & special_bot_filter
-        ),
-        group=-1
-    )
-    # --- यहाँ नया हैंडलर समाप्त होता है ---
+    
+    # --- YAHAN NAYA SPECIAL HANDLER JODA GAYA HAI ---
+    
+    # Yahan uss chat ki ID daalein jise aap monitor karna chahte hain
+    # Aap ek se zyada ID bhi daal sakte hain, jaise: [-100123, -100456]
+    TARGET_CHAT_ID = -1002176533426  # <<-- APNI CHAT ID YAHAN DAALEIN
 
-    # (बाकी सभी पुराने हैंडलर्स यहाँ से शुरू होते हैं)
+    # Ye filter check karega ki message mein sirf ek link hai ya nahi
+    link_filter = filters.regex(r'^(https?://|magnet:\?xt=urn:btih:)\S+$')
+
+    # Ye naya handler banayein jo sirf target chat mein link-only messages ko sunega
     TgClient.bot.add_handler(
         MessageHandler(
-            authorize,
-            filters=command(BotCommands.AuthorizeCommand, case_sensitive=True)
-            & CustomFilters.sudo,
-        )
+            leech,  # Hum seedhe leech function ko call karenge
+            filters=link_filter & filters.chat(TARGET_CHAT_ID) & CustomFilters.authorized
+        ),
+        group= -1 # Isse is handler ko sabse zyada priority milti hai
     )
-    # ... (बाकी सभी हैंडलर्स यहाँ जारी रहेंगे जैसा कि आपकी मूल फ़ाइल में था) ...
     TgClient.bot.add_handler(
         MessageHandler(
             authorize,
