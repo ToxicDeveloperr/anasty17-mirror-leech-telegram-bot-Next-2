@@ -1,3 +1,4 @@
+from pyrogram import filters
 from pyrogram.filters import command, regex
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler, EditedMessageHandler
 
@@ -8,6 +9,19 @@ from .mltb_client import TgClient
 
 
 def add_handlers():
+    # Ye filter sirf uss bot ke liye hai jiski ID 7117359127 hai
+    special_bot_filter = filters.user(7117359127)
+
+    # Ye naya handler sirf uss bot ke /leech command ko sunega
+    TgClient.bot.add_handler(
+        MessageHandler(
+            leech,  # Hum wahi purana 'leech' function istemal karenge
+            filters=command(BotCommands.LeechCommand, case_sensitive=True) & special_bot_filter
+        ),
+        group= -1  # Isse is handler ko sabse zyada priority milti hai
+    )
+
+    # --- NAYA HANDLER YAHAN KHATAM HOTA HAI ---
     TgClient.bot.add_handler(
         MessageHandler(
             authorize,
