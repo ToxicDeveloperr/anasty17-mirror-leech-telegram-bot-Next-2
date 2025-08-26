@@ -782,30 +782,52 @@ def uploadee(url):
 def terabox(url):
     if "/file/" in url:
         return url
-    api_url = f"https://wdzone-terabox-api.vercel.app/api?url={quote(url)}"
+    
+    new_api_url = f"https://silent-noor-stream-api.woodmirror.workers.dev/api?url={quote(url)}"
+    
     try:
         with Session() as session:
-            req = session.get(api_url, headers={"User-Agent": user_agent}).json()
+            req = session.get(new_api_url, headers={"User-Agent": user_agent}).json()
     except Exception as e:
         raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}") from e
 
     details = {"contents": [], "title": "", "total_size": 0}
-    if "✅ Status" not in req:
-        raise DirectDownloadLinkException("ERROR: File not found!")
-    for data in req["📜 Extracted Info"]:
+
+    # Old API format
+    if "✅ Status" in req:
+        for data in req["📜 Extracted Info"]:
+            size_val = data["📏 Size"]
+            if isinstance(size_val, str):
+                size_val = size_val.replace(" ", "")
+            item = {
+                "path": "",
+                "filename": data["📂 Title"],
+                "url": data["🔽 Direct Download Link"],
+            }
+            details["contents"].append(item)
+            details["total_size"] += speed_string_to_bytes(size_val)
+        details["title"] = req["📜 Extracted Info"][0]["📂 Title"]
+
+    # New API format
+    elif "proxy_url" in req:
+        size_val = req["file_size"]
+        if isinstance(size_val, str):
+            size_val = size_val.replace(" ", "")
         item = {
             "path": "",
-            "filename": data["📂 Title"],
-            "url": data["🔽 Direct Download Link"],
+            "filename": req["file_name"],
+            "url": req["proxy_url"],
         }
         details["contents"].append(item)
-        size = (data["📏 Size"]).replace(" ", "")
-        size = speed_string_to_bytes(size)
-        details["total_size"] += size
-    details["title"] = req["📜 Extracted Info"][0]["📂 Title"]
-    if len(details["contents"]) == 1:
-        return details["contents"][0]["url"]
-    return details
+        details["total_size"] += speed_string_to_bytes(size_val)
+        details["title"] = req["file_name"]
+
+    else:
+        raise DirectDownloadLinkException(
+            "ERROR: File not found or unsupported API response format!"
+        )
+
+    return details["contents"][0]["url"] if len(details["contents"]) == 1 else details
 
 
 def filepress(url):
