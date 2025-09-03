@@ -72,7 +72,15 @@ class Mirror(TaskListener):
         self.is_nzb = is_nzb
 
     async def new_event(self):
-        text = self.message.text.split("\n")
+        # Prefer text, fallback to caption
+        raw_text = self.message.text or self.message.caption or ""
+
+        if not raw_text:
+            # Agar na text hai na caption, ignore kar do
+            return
+
+        # Split into lines and words
+        text = raw_text.split("\n")
         input_list = text[0].split(" ")
 
         args = {
